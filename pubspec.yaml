@@ -38,6 +38,7 @@ dependencies:
   intl: ^0.17.0
   flutter_animated_dialog: ^2.0.1
   flutter_datetime_picker: ^1.5.1
+  shared_preferences: ^2.0.13
 
 dev_dependencies:
   flutter_test:

@@ -4,6 +4,7 @@ import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:flutter_todo/models/todo.dart';
 import 'package:flutter_todo/utils.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(const MainApp());
@@ -34,6 +35,8 @@ class TodoApp extends StatefulWidget {
 
 class _TodoAppState extends State<TodoApp> {
   final List<Todo> _todos = <Todo>[];
+  bool _darkMode = false;
+  ThemeData? _theme = null;
   final GlobalKey<_TodoAppState> _key = GlobalKey<_TodoAppState>();
 
   Future _openCreateTodoDialogPopup() {
@@ -134,48 +137,78 @@ class _TodoAppState extends State<TodoApp> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Flutter Todo"),
-      ),
-      body: ListView.builder(
-        itemCount: _todos.length,
-        itemBuilder: (context, index) {
-          if (_todos.isNotEmpty) {
-            if (_todos[index].completed == false) {
-              return ListTile(
-                title: Text(_todos[index].todo),
-                trailing: Checkbox(
-                  value: _todos[index].completed,
-                  onChanged: (bool? value) {
-                    setState(() => {
-                      //_todos[index].completed = value!
-                      _todos.removeAt(index)
-                    });
-                  },
-                ),
-                subtitle: Text(_todos[index].deadline == null ?
+    return MaterialApp(
+        title: 'Flutter Todo',
+        debugShowCheckedModeBanner: false,
+        theme: _theme,
+        home: Scaffold(
+          appBar: AppBar(
+            title: const Text("Flutter Todo"),
+          ),
+          body: ListView.builder(
+            itemCount: _todos.length,
+            itemBuilder: (context, index) {
+              if (_todos.isNotEmpty) {
+                if (_todos[index].completed == false) {
+                  return ListTile(
+                    title: Text(_todos[index].todo),
+                    trailing: Checkbox(
+                      value: _todos[index].completed,
+                      onChanged: (bool? value) {
+                        setState(() => {
+                          //_todos[index].completed = value!
+                          _todos.removeAt(index)
+                        });
+                      },
+                    ),
+                    subtitle: Text(_todos[index].deadline == null ?
                     "no due date."
-                    : "due by ${DateUtilities.format(_todos[index].deadline!)}"),
-              );
-            } else {
-              return const Center(
-                child: Text("hello"),
-              );
-            }
-          } else {
-            return const Center(
-              child: Text("no todos"),
-            );
-          }
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.add),
-        onPressed: () => {
-          _openCreateTodoDialogPopup()
-        }
-      ),
+                        : "due by ${DateUtilities.format(_todos[index].deadline!)}"),
+                  );
+                } else {
+                  return const Center(
+                    child: Text("hello"),
+                  );
+                }
+              } else {
+                return const Center(
+                  child: Text("no todos"),
+                );
+              }
+            },
+          ),
+          floatingActionButton: FloatingActionButton(
+              child: const Icon(Icons.add),
+              onPressed: () => {
+                _openCreateTodoDialogPopup()
+              }
+          ),
+          drawer: Drawer(
+            child: ListView(
+              // Important: Remove any padding from the ListView.
+              padding: EdgeInsets.zero,
+              children: <Widget>[
+                SafeArea(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        const Text(
+                          "Dark Mode"
+                        ),
+                        Switch(
+                          value: _darkMode,
+                          onChanged: (value) => {
+                            setState(() => _darkMode = value),
+                            _theme = _darkMode ? ThemeData.dark() : ThemeData.light()
+                          },
+                        )
+                      ],
+                    )
+                )
+              ],
+            ),
+          ),
+        )
     );
   }
 }
