@@ -35,64 +35,43 @@ class TodoApp extends StatefulWidget {
 
 class _TodoAppState extends State<TodoApp> {
   final List<Todo> _todos = <Todo>[];
-  bool _darkMode = false;
+  bool _lightMode = false;
   ThemeData? _theme = null;
-  final GlobalKey<_TodoAppState> _key = GlobalKey<_TodoAppState>();
+  final GlobalKey<FormState> _key = GlobalKey<FormState>();
+
+  void _setDarkMode(bool darkOrLight) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('theme', darkOrLight ? 'dark' : 'light');
+
+    setState(() => {
+      _lightMode = darkOrLight
+    });
+  }
+
+  void _loadTheme() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    setState(() => {
+       _lightMode = prefs.getString('theme') == 'dark' ? false : true
+    });
+  }
+
+  void _useTheme() async {
+    setState(() => {
+      _theme = _lightMode ? ThemeData.light() : ThemeData.dark()
+    });
+  }
+
+  @override
+  void initState() {
+    _loadTheme();
+    _useTheme();
+    super.initState();
+  }
 
   Future _openCreateTodoDialogPopup() {
     final textController = TextEditingController();
     DateTime? deadline;
-
-    return showAnimatedDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Add a new Todo"),
-        content: Stack(
-          children: <Widget>[
-            TextField(
-              controller: textController,
-              autofocus: true,
-              decoration: const InputDecoration(
-                  hintText: "Enter todo..",
-              ),
-              maxLength: 100,
-              minLines: 1,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            child: const Text("Create Todo"),
-            onPressed: () => {
-              setState(() => {
-                if (deadline == null)
-                  _todos.add(Todo(textController.text, false))
-                else
-                  _todos.add(Todo(textController.text, false, deadline))
-              }),
-
-              // close the popup
-              Navigator.of(context).pop()
-            }
-          ),
-          TextButton(
-            child: const Text("Set deadline"),
-            onPressed: () => {
-              DatePicker.showDatePicker(
-                context,
-                showTitleActions: true,
-                minTime: DateTime.now(),
-                maxTime: DateTime(DateTime.now().year, DateTime.december), // deadlines for todos can't be more than a year
-                onConfirm: (date) => deadline = date,
-              )
-            },
-          )
-        ],
-      ),
-      duration: const Duration(milliseconds: 380),
-      animationType: DialogTransitionType.size,
-      curve: Curves.fastOutSlowIn,
-    );
 
     // return showAnimatedDialog(
     //     context: context,
@@ -121,18 +100,68 @@ class _TodoAppState extends State<TodoApp> {
     //         TextButton(
     //           child: const Text("Create Todo"),
     //           onPressed: () => {
-    //             if (_key.currentState?.validate()) {
     //               setState(() => {
     //                 if (deadline == null)
     //                   _todos.add(Todo(textController.text, false))
     //                 else
     //                   _todos.add(Todo(textController.text, false, deadline))
     //               })
-    //             }
     //           },
     //         ),
     //       ],
     //     )
+    //     );
+
+    return showAnimatedDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          content: Form(
+            key: _key,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                const Text(
+                  "Create a todo"
+                ),
+                SafeArea(
+                  child: TextFormField(
+                    autofocus: true,
+                    controller: textController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return "Cannot create empty todo";
+                      }
+
+                      return null;
+                    },
+                    decoration: const InputDecoration(
+                        hintText: "Enter todo.."
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
+            actions: <Widget>[
+              TextButton(
+                child: const Text("Create Todo"),
+                onPressed: () => {
+                  if (_key.currentState!.validate()) {
+                    setState(() => {
+                      if (deadline == null)
+                        _todos.add(Todo(textController.text, false))
+                      else
+                        _todos.add(Todo(textController.text, false, deadline))
+                    }),
+
+                    Navigator.of(context).pop(),
+                  },
+                },
+              )
+            ]
+        )
+    );
   }
 
   @override
@@ -196,10 +225,10 @@ class _TodoAppState extends State<TodoApp> {
                           "Dark Mode"
                         ),
                         Switch(
-                          value: _darkMode,
+                          value: _lightMode,
                           onChanged: (value) => {
-                            setState(() => _darkMode = value),
-                            _theme = _darkMode ? ThemeData.dark() : ThemeData.light()
+                            _setDarkMode(value),
+                            _useTheme(),
                           },
                         )
                       ],
