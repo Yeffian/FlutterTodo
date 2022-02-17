@@ -73,45 +73,6 @@ class _TodoAppState extends State<TodoApp> {
     final textController = TextEditingController();
     DateTime? deadline;
 
-    // return showAnimatedDialog(
-    //     context: context,
-    //     builder: (context) => AlertDialog(
-    //       title: const Text("Create a new todo"),
-    //       content: Form(
-    //         child: Stack(
-    //           children: <Widget>[
-    //             TextFormField(
-    //               controller: textController,
-    //               autofocus: true,
-    //               decoration: const InputDecoration(
-    //                 hintText: "Enter todo.."
-    //               ),
-    //               validator: (value) {
-    //                 if (value == null || value.isEmpty) {
-    //                   return 'Please enter some text';
-    //                 }
-    //                 return null;
-    //               },
-    //             )
-    //           ],
-    //         ),
-    //       ),
-    //       actions: [
-    //         TextButton(
-    //           child: const Text("Create Todo"),
-    //           onPressed: () => {
-    //               setState(() => {
-    //                 if (deadline == null)
-    //                   _todos.add(Todo(textController.text, false))
-    //                 else
-    //                   _todos.add(Todo(textController.text, false, deadline))
-    //               })
-    //           },
-    //         ),
-    //       ],
-    //     )
-    //     );
-
     return showAnimatedDialog(
         context: context,
         builder: (context) => AlertDialog(
