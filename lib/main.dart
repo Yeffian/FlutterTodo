@@ -76,37 +76,27 @@ class _TodoAppState extends State<TodoApp> {
     return showAnimatedDialog(
         context: context,
         builder: (context) => AlertDialog(
+          title: const Text("Create a todo"),
           content: Form(
             key: _key,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                const Text(
-                  "Create a todo"
-                ),
-                SafeArea(
-                  child: TextFormField(
-                    autofocus: true,
-                    controller: textController,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return "Cannot create empty todo";
-                      }
+            child: TextFormField(
+              autofocus: true,
+              controller: textController,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return "Cannot create empty todo";
+                }
 
-                      return null;
-                    },
-                    decoration: const InputDecoration(
-                        hintText: "Enter todo.."
-                    ),
-                  ),
-                )
-              ],
+                return null;
+              },
+              decoration: const InputDecoration(
+                  hintText: "Enter todo.."
+              ),
             ),
           ),
-            actions: <Widget>[
-              TextButton(
-                child: const Text("Create Todo"),
+          actions: <Widget>[
+           TextButton(
+             child: const Text("Create Todo"),
                 onPressed: () => {
                   if (_key.currentState!.validate()) {
                     setState(() => {
@@ -119,8 +109,20 @@ class _TodoAppState extends State<TodoApp> {
                     Navigator.of(context).pop(),
                   },
                 },
-              )
-            ]
+            ),
+           TextButton(
+             child: const Text("Set deadline"),
+             onPressed: () => {
+               DatePicker.showDatePicker(
+                 context,
+                 showTitleActions: true,
+                 minTime: DateTime.now(),
+                 maxTime: DateTime(DateTime.now().year, DateTime.december), // deadlines for todos can't be more than a year
+                 onConfirm: (date) => deadline = date,
+               )
+             },
+           )
+          ]
         )
     );
   }
