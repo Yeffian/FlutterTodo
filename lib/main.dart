@@ -113,7 +113,7 @@ class _TodoAppState extends State<TodoApp> {
            TextButton(
              child: const Text("Set deadline"),
              onPressed: () => {
-               DatePicker.showDatePicker(
+               DatePicker.showDateTimePicker(
                  context,
                  showTitleActions: true,
                  minTime: DateTime.now(),

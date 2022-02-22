@@ -2,6 +2,6 @@ import 'package:intl/intl.dart';
 
 class DateUtilities {
   static String format(DateTime date) {
-    return DateFormat("dd/MM/yyyy").format(date);
+    return DateFormat.yMd().add_jm().format(date);
   }
 }
